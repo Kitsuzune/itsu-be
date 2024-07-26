@@ -3,6 +3,9 @@ import User from '../models/UserModel.js';
 import path from 'path';
 import fs from 'fs';
 import { Sequelize } from 'sequelize';
+import Favourite from '../models/FavouriteModel.js';
+import TransactionModel from '../models/TransactionModel.js';
+import Review from '../models/ReviewModel.js';
 
 export const createProduct = async (req, res) => {
     try {
@@ -10,7 +13,7 @@ export const createProduct = async (req, res) => {
         const productImage = req.file ? req.file.filename : null;
 
         const newProduct = await Product.create({ name, price, description, image: productImage, status });
-        
+
         res.status(201).json({
             message: "Product created successfully",
             product: {
@@ -28,8 +31,33 @@ export const getProducts = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
         const offset = (page - 1) * limit;
+        const searchQuery = req.query.search;
+
+        let whereClause = {};
+        if (searchQuery) {
+            whereClause = {
+                [Sequelize.Op.or]: [
+                    {
+                        name: {
+                            [Sequelize.Op.like]: `%${searchQuery}%`
+                        }
+                    },
+                    {
+                        description: {
+                            [Sequelize.Op.like]: `%${searchQuery}%`
+                        }
+                    }
+                ]
+            };
+        }
+
+        const rating = await Review.findAll({
+            attributes: ['productId', [Sequelize.fn('AVG', Sequelize.col('rating')), 'averageRating']],
+            group: ['productId']
+        });
 
         const { count, rows: products } = await Product.findAndCountAll({
+            where: whereClause,
             offset: offset,
             limit: limit,
             order: [["createdAt", "DESC"]]
@@ -40,6 +68,7 @@ export const getProducts = async (req, res) => {
             products: products.map(product => {
                 return {
                     ...product.toJSON(),
+                    rating: parseFloat(rating.find(r => r.productId === product.id)?.dataValues.averageRating || 0).toFixed(1),
                     productImage: `${process.env.BASE_URL}/uploads/productImage/${product.image}`
                 };
             }),
@@ -51,23 +80,90 @@ export const getProducts = async (req, res) => {
     }
 };
 
+export const getProductsByBestSeller = async (req, res) => {
+    try {
+        const transaction_details = await TransactionModel.findAll({
+            attributes: ['productList'],
+            where: { status: 'success' }
+        });
+
+        const productList = transaction_details.map(product => {
+            return JSON.parse(product.productList);
+        });
+
+
+        const product = productList.flat().map(product => {
+            return product.productId;
+        });
+
+
+        const products = await Product.findAll({
+            where: {
+                id: product
+            }
+        });
+
+        const rating = await Review.findAll({
+            attributes: ['productId', [Sequelize.fn('AVG', Sequelize.col('rating')), 'averageRating']],
+            group: ['productId']
+        });
+
+        res.status(200).json({
+            message: "Products fetched successfully",
+            products: products.map(product => {
+                return {
+                    ...product.toJSON(),
+                    rating: parseFloat(rating.find(r => r.productId === product.id)?.dataValues.averageRating || 0).toFixed(1),
+                    productImage: `${process.env.BASE_URL}/uploads/productImage/${product.image}`
+                };
+            })
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
         const product = await Product.findByPk(id);
+        const userId = req.user.userId;
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        const relatedProducts = await Product.findAll({
+        const favourite = await Favourite.findOne({
             where: {
-                id: {
-                    [Sequelize.Op.not]: product.id
-                }
-            },
-            limit: 4,
-            order: Sequelize.literal("rand()")
+                userId: userId,
+                productId: id
+            }
+        });
+
+        // const relatedProducts = await Product.findAll({
+        //     where: {
+        //         id: {
+        //             [Sequelize.Op.not]: product.id
+        //         }
+        //     },
+        //     limit: 4,
+        //     order: Sequelize.literal("rand()")
+        // });
+
+        const ordered = await TransactionModel.findOne({
+            where: {
+                userId: userId,
+                productList: Sequelize.literal(`JSON_CONTAINS(productList, '[{"productId":"${id}"}]')`),
+                status: 'success',
+            }
+        });
+
+        const reviewed = await Review.findOne({
+            where: {
+                userId: userId,
+                productId: id
+            }
         });
 
         res.status(200).json({
@@ -75,12 +171,16 @@ export const getProductById = async (req, res) => {
             product: {
                 ...product.toJSON(),
                 productImage: `${process.env.BASE_URL}/uploads/productImage/${product.image}`,
-                relatedProducts: relatedProducts.map(product => {
-                    return {
-                        ...product.toJSON(),
-                        productImage: `${process.env.BASE_URL}/uploads/productImage/${product.image}`
-                    };
-                })
+                isFavourite: favourite ? true : false,
+                favouriteId: favourite ? favourite.id : null,
+                isOrdered: ordered ? true : false,
+                isReviewed: reviewed ? true : false,
+                // relatedProducts: relatedProducts.map(product => {
+                //     return {
+                //         ...product.toJSON(),
+                //         productImage: `${process.env.BASE_URL}/uploads/productImage/${product.image}`
+                //     };
+                // })
             }
         });
     } catch (error) {
@@ -101,11 +201,16 @@ export const updateProduct = async (req, res) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        if (productImage && product.image) {
-            fs.unlinkSync(path.join('uploads/productImage/', product.image));
-        } else {
-            productImage = product.image;
+        // Check if there is an image in the request body
+        if (req.body.productImage) {
+            if (productImage && product.image) {
+                fs.unlinkSync(path.join('uploads/productImage/', product.image));
+            } else {
+                productImage = product.image;
+            }
         }
+        
+        console.log('test');
 
         product.name = name;
         product.price = price;

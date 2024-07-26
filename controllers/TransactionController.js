@@ -1,8 +1,8 @@
 import Product from "../models/ProductModel.js";
 import User from "../models/UserModel.js";
-import Transaction from "../models/TransactionModel.js";
 import midtransClient from 'midtrans-client';
 import Cart from "../models/CartModel.js";
+import TransactionModel from "../models/TransactionModel.js";
 
 export const createTransaction = async (req, res) => {
     const { productList, deduction, quantity } = req.body;
@@ -14,30 +14,17 @@ export const createTransaction = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // product list :
-        // [
-        //     {
-        //         "productName": "Kanvas A5",
-        //         "productPrice": "90000",
-        //         "quantity": 3
-        //     },
-        //     {
-        //         "productName": "Kanvas",
-        //         "productPrice": "20000",
-        //         "quantity": 1
-        //     }
-        // ]
-
         const total = productList.reduce((acc, item) => {
             return acc + item.productPrice * item.quantity;
         }, 0);
 
-        const transaction = await Transaction.create({
+        const transactionLocal = await TransactionModel.create({
             userId,
             productList,
             deduction,
             quantity,
             total,
+            status: 'pending',
         });
 
         const snap = new midtransClient.Snap({
@@ -48,13 +35,18 @@ export const createTransaction = async (req, res) => {
 
         const parameter = {
             transaction_details: {
-                order_id: transaction.id,
+                order_id: transactionLocal.id,
                 gross_amount: total,
             },
             customer_details: {
                 first_name: user.firstName,
                 last_name: user.lastName,
                 email: user.email,
+            },
+            callbacks: {
+                finish: `${process.env.WEB_URL}/orders`,
+                error: `${process.env.WEB_URL}/orders`,
+                cancel: `${process.env.WEB_URL}/orders`,
             },
         };
 
@@ -70,6 +62,7 @@ export const createTransaction = async (req, res) => {
                 token: token,
                 dataPayment,
                 transaction,
+                transactionLocal
             });
         })
 
@@ -84,14 +77,23 @@ export const createTransaction = async (req, res) => {
 }
 
 export const midtransNotification = async (req, res) => {
-    const { orderId } = req.body;
+    const { transactionId } = req.body;
 
     try {
-        const Transaction = await Transaction.findByPk(orderId);
+        const transaction = await TransactionModel.findByPk(transactionId);
+        console.log(transaction);
 
-        const Total = Transaction.productList.reduce((acc, item) => {
-            return acc + item.productPrice * item.quantity;
+        if (!transaction) {
+            return res.status(404).json({ message: "Transaction not found" });
+        }
+
+        const productList = JSON.parse(transaction.productList);
+
+        const total = productList.reduce((acc, item) => {
+            return acc + Number(item.productPrice) * item.quantity;
         }, 0);
+
+        const user = await User.findByPk(transaction.userId);
 
         const snap = new midtransClient.Snap({
             isProduction: false,
@@ -99,34 +101,64 @@ export const midtransNotification = async (req, res) => {
             clientKey: process.env.MIDTRANS_CLIENT_KEY,
         });
 
-        snap.transaction.notification(req.body).then((statusResponse) => {
-            if (statusResponse.transaction_status == 'capture') {
-                if (statusResponse.gross_amount == Total) {
-                    if (statusResponse.fraud_status == 'accept') {
-                        Transaction.status = 'success';
-                        Transaction.save();
-                    }
-                }
-            } else if (statusResponse.transaction_status == 'settlement') {
-                Transaction.status = 'success';
-                Transaction.save();
-            } else if (statusResponse.transaction_status == 'cancel' || statusResponse.transaction_status == 'deny' || statusResponse.transaction_status == 'expire') {
-                Transaction.status = 'failed';
-                Transaction.save();
-            }
-        });
+        const parameter = {
+            transaction_details: {
+                order_id: transactionId,
+                gross_amount: total,
+            },
+            customer_details: {
+                first_name: user.firstName,
+                last_name: user.lastName,
+                email: user.email,
+            },
+            callbacks: {
+                finish: `${process.env.WEB_URL}/orders`,
+                error: `${process.env.WEB_URL}/orders`,
+                cancel: `${process.env.WEB_URL}/orders`,
+            },
+        };
 
+        // Check if there is already an existing Snap transaction
+        if (transaction.dataPayment && transaction.dataPayment.response) {
+            const existingTransaction = JSON.parse(transaction.dataPayment.response);
+            if (existingTransaction.token) {
+                return res.status(200).json({
+                    message: "Existing transaction found",
+                    token: existingTransaction.token,
+                });
+            }
+        }
+
+        // If no existing transaction, create a new Snap transaction
+        snap.createTransaction(parameter).then(async (newTransaction) => {
+            const dataPayment = {
+                response: JSON.stringify(newTransaction),
+            };
+
+            transaction.dataPayment = dataPayment;
+            await transaction.save();
+
+            res.status(200).json({
+                message: "Transaction created successfully",
+                token: newTransaction.token,
+                dataPayment,
+                transaction,
+            });
+        }).catch((error) => {
+            res.status(500).json({ message: error.message });
+        });
 
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-}
+};
 
 export const updateTransactionStatus = async (req, res) => {
     const { orderId, status } = req.body;
+    console.log(req.body);
 
     try {
-        const transaction = await Transaction.findByPk(orderId);
+        const transaction = await TransactionModel.findByPk(orderId);
         if (!transaction) {
             return res.status(404).json({ message: "Transaction not found" });
         }
@@ -150,15 +182,64 @@ export const transactionListByuser = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const transactions = await Transaction.findAll({
-            where: {
-                userId,
-            },
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        const { count, rows: transactions } = await TransactionModel.findAndCountAll({
+            where: { userId },
+            include: [{ model: User, as: 'user', attributes: ['username'] }],
+            offset: offset,
+            limit: limit,
+            order: [["updatedAt", "DESC"]]
         });
 
-        res.status(200).json({ transactions });
+        res.status(200).json({
+            message: "Transactions fetched successfully",
+            transactions: transactions.map(transaction => {
+                const { user, ...transactionData } = transaction.toJSON();
+                return {
+                    ...transactionData,
+                    username: user.username,
+                    transactionDetails: `${process.env.BASE_URL}/transactions/${transaction.id}`
+                };
+            }),
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 
+}
+
+export const transactionAllList = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        const { count, rows: transactions } = await TransactionModel.findAndCountAll({
+            include: [{ model: User, as: "user", attributes: ["username"] }],
+            offset: offset,
+            limit: limit,
+            order: [["createdAt", "DESC"]]
+        });
+
+        res.status(200).json({
+            message: "Transactions fetched successfully",
+            transactions: transactions.map(transaction => {
+                const { user, ...transactionData } = transaction.toJSON();
+                return {
+                    ...transactionData,
+                    username: user.username,
+                    transactionDetails: `${process.env.BASE_URL}/transactions/${transaction.id}`
+                };
+            }),
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
 }

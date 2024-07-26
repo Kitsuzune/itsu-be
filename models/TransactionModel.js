@@ -3,7 +3,7 @@ import db from "../config/ModelConfig.js";
 
 const { DataTypes } = Sequelize;
 
-const Transaction = db.define("transactions", {
+const TransactionModel = db.define("transactions", {
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
@@ -50,4 +50,5 @@ const Transaction = db.define("transactions", {
     },
 });
 
-export default Transaction;
+
+export default TransactionModel;

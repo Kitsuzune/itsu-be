@@ -1,5 +1,7 @@
 import { Sequelize } from "sequelize";
 import db from "../config/ModelConfig.js";
+import TransactionModel from "./TransactionModel.js";
+import Review from "./ReviewModel.js";
 
 const { DataTypes } = Sequelize;
 
@@ -35,5 +37,10 @@ const User = db.define("users", {
         allowNull: true,
     },
 });
+
+User.hasMany(TransactionModel, { foreignKey: 'userId', as: 'transactions' });
+TransactionModel.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+User.hasMany(Review, { foreignKey: 'userId', as: 'reviews' });
+Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 export default User;

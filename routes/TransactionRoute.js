@@ -9,6 +9,10 @@ const upload = multer();
 const router = express.Router();
 
 router.post('/transaction/create', verifyToken, upload.none(), TransactionController.createTransaction);
-router.post('/transaction/updateStatus', upload.none(), TransactionController.updateTransactionStatus);
+router.post('/transaction/updateStatus', verifyToken, upload.none(), TransactionController.updateTransactionStatus);
+router.post('/transaction/midNotification', verifyToken, upload.none(), TransactionController.midtransNotification);
+
+router.get('/transaction/listAllByUser', verifyToken, upload.none(), TransactionController.transactionListByuser);
+router.get('/transaction/AdminList', verifyToken, upload.none(), TransactionController.transactionAllList);
 
 export default router;

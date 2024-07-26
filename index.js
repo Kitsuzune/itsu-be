@@ -5,6 +5,9 @@ import AuthRoute from './routes/AuthRoute.js';
 import ProductRoute from './routes/ProductRoute.js';
 import CartRoute from './routes/CartRoute.js';
 import TransactionRoute from './routes/TransactionRoute.js';
+import FavouriteRoute from './routes/FavouriteRoute.js';
+import ReviewRoute from './routes/ReviewRoute.js';
+import BannerRoute from './routes/BannerRoute.js';
 import path from 'path';
 
 
@@ -23,10 +26,14 @@ app.use(AuthRoute)
 app.use(ProductRoute)
 app.use(CartRoute)
 app.use(TransactionRoute)
+app.use(FavouriteRoute)
+app.use(ReviewRoute)
+app.use(BannerRoute)
 
 
 app.use('/uploads/profilePicture', express.static(path.join(__dirname, '/uploads/profilePicture')));
 app.use('/uploads/productImage', express.static(path.join(__dirname, '/uploads/productImage')));
+app.use('/uploads/bannerImage', express.static(path.join(__dirname, '/uploads/bannerImage')));
 
 
 app.listen(port, () => {
