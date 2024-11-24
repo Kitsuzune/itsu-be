@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
+const { Sequelize } = require('sequelize');
 
-export default function(sequelize, DataTypes) {
+module.exports = function(sequelize, DataTypes) {
   return sequelize.define('sequelizemeta', {
     name: {
       type: DataTypes.STRING(255),

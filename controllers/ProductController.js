@@ -1,13 +1,13 @@
-import Product from '../models/ProductModel.js';
-import User from '../models/UserModel.js';
-import path from 'path';
-import fs from 'fs';
-import { Sequelize } from 'sequelize';
-import Favourite from '../models/FavouriteModel.js';
-import TransactionModel from '../models/TransactionModel.js';
-import Review from '../models/ReviewModel.js';
+const Product = require('../models/ProductModel.js');
+const User = require('../models/UserModel.js');
+const path = require('path');
+const fs = require('fs');
+const { Sequelize } = require('sequelize');
+const Favourite = require('../models/FavouriteModel.js');
+const TransactionModel = require('../models/TransactionModel.js');
+const Review = require('../models/ReviewModel.js');
 
-export const createProduct = async (req, res) => {
+const createProduct = async (req, res) => {
     try {
         const { name, price, description, status } = req.body;
         const productImage = req.file ? req.file.filename : null;
@@ -26,7 +26,7 @@ export const createProduct = async (req, res) => {
     }
 };
 
-export const getProducts = async (req, res) => {
+const getProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 8;
@@ -80,7 +80,7 @@ export const getProducts = async (req, res) => {
     }
 };
 
-export const getProductsByBestSeller = async (req, res) => {
+const getProductsByBestSeller = async (req, res) => {
     try {
         const transaction_details = await TransactionModel.findAll({
             attributes: ['productList'],
@@ -91,11 +91,9 @@ export const getProductsByBestSeller = async (req, res) => {
             return JSON.parse(product.productList);
         });
 
-
         const product = productList.flat().map(product => {
             return product.productId;
         });
-
 
         const products = await Product.findAll({
             where: {
@@ -124,7 +122,7 @@ export const getProductsByBestSeller = async (req, res) => {
     }
 }
 
-export const getProductById = async (req, res) => {
+const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
         const product = await Product.findByPk(id);
@@ -140,16 +138,6 @@ export const getProductById = async (req, res) => {
                 productId: id
             }
         });
-
-        // const relatedProducts = await Product.findAll({
-        //     where: {
-        //         id: {
-        //             [Sequelize.Op.not]: product.id
-        //         }
-        //     },
-        //     limit: 4,
-        //     order: Sequelize.literal("rand()")
-        // });
 
         const ordered = await TransactionModel.findOne({
             where: {
@@ -175,12 +163,6 @@ export const getProductById = async (req, res) => {
                 favouriteId: favourite ? favourite.id : null,
                 isOrdered: ordered ? true : false,
                 isReviewed: reviewed ? true : false,
-                // relatedProducts: relatedProducts.map(product => {
-                //     return {
-                //         ...product.toJSON(),
-                //         productImage: `${process.env.BASE_URL}/uploads/productImage/${product.image}`
-                //     };
-                // })
             }
         });
     } catch (error) {
@@ -188,7 +170,7 @@ export const getProductById = async (req, res) => {
     }
 };
 
-export const updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, price, description } = req.body;
@@ -201,7 +183,6 @@ export const updateProduct = async (req, res) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        // Check if there is an image in the request body
         if (req.body.productImage) {
             if (productImage && product.image) {
                 fs.unlinkSync(path.join('uploads/productImage/', product.image));
@@ -234,7 +215,7 @@ export const updateProduct = async (req, res) => {
     }
 };
 
-export const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -252,4 +233,13 @@ export const deleteProduct = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+module.exports = {
+    createProduct,
+    getProducts,
+    getProductsByBestSeller,
+    getProductById,
+    updateProduct,
+    deleteProduct
 };

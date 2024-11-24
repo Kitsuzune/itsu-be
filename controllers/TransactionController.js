@@ -1,10 +1,10 @@
-import Product from "../models/ProductModel.js";
-import User from "../models/UserModel.js";
-import midtransClient from 'midtrans-client';
-import Cart from "../models/CartModel.js";
-import TransactionModel from "../models/TransactionModel.js";
+const Product = require("../models/ProductModel.js");
+const User = require("../models/UserModel.js");
+const midtransClient = require('midtrans-client');
+const Cart = require("../models/CartModel.js");
+const TransactionModel = require("../models/TransactionModel.js");
 
-export const createTransaction = async (req, res) => {
+const createTransaction = async (req, res) => {
     const { productList, deduction, quantity } = req.body;
     const userId = req.user.userId;
 
@@ -76,7 +76,7 @@ export const createTransaction = async (req, res) => {
     }
 }
 
-export const midtransNotification = async (req, res) => {
+const midtransNotification = async (req, res) => {
     const { transactionId } = req.body;
 
     try {
@@ -153,7 +153,7 @@ export const midtransNotification = async (req, res) => {
     }
 };
 
-export const updateTransactionStatus = async (req, res) => {
+const updateTransactionStatus = async (req, res) => {
     const { orderId, status } = req.body;
     console.log(req.body);
 
@@ -172,8 +172,7 @@ export const updateTransactionStatus = async (req, res) => {
     }
 }
 
-
-export const transactionListByuser = async (req, res) => {
+const transactionListByuser = async (req, res) => {
     const userId = req.user.userId;
 
     try {
@@ -213,7 +212,7 @@ export const transactionListByuser = async (req, res) => {
 
 }
 
-export const transactionAllList = async (req, res) => {
+const transactionAllList = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -243,3 +242,11 @@ export const transactionAllList = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+
+module.exports = {
+    createTransaction,
+    midtransNotification,
+    updateTransactionStatus,
+    transactionListByuser,
+    transactionAllList
+};

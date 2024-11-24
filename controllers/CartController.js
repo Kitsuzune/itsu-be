@@ -1,8 +1,8 @@
-import Cart from "../models/CartModel.js";
-import Product from "../models/ProductModel.js";
-import User from "../models/UserModel.js";
+const Cart = require("../models/CartModel.js");
+const Product = require("../models/ProductModel.js");
+const User = require("../models/UserModel.js");
 
-export const getCart = async (req, res) => {
+const getCart = async (req, res) => {
     try {
         const userId = req.user.userId;
 
@@ -28,9 +28,9 @@ export const getCart = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
-export const addToCart = async (req, res) => {
+const addToCart = async (req, res) => {
     try {
         const { productId, quantity } = req.body;
         const userId = req.user.userId;
@@ -62,7 +62,7 @@ export const addToCart = async (req, res) => {
     }
 };
 
-export const plusQuantity = async (req, res) => {
+const plusQuantity = async (req, res) => {
     try {
         const { cartId } = req.params;
 
@@ -81,7 +81,7 @@ export const plusQuantity = async (req, res) => {
     }
 };
 
-export const minusQuantity = async (req, res) => {
+const minusQuantity = async (req, res) => {
     try {
         const { cartId } = req.params;
 
@@ -102,4 +102,11 @@ export const minusQuantity = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+module.exports = {
+    getCart,
+    addToCart,
+    plusQuantity,
+    minusQuantity
 };

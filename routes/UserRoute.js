@@ -1,7 +1,7 @@
-import express from 'express';
-import * as UserController from '../controllers/UserController.js';
-import multer from 'multer';
-import verifyToken from '../middleware/authMiddleware.js';
+const express = require('express');
+const UserController = require('../controllers/UserController.js');
+const multer = require('multer');
+const verifyToken = require('../middleware/authMiddleware.js');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -22,4 +22,4 @@ router.put('/profile/picture', upload.single('profilePicture'), verifyToken, Use
 router.get('/profile/detail', verifyToken, UserController.getProfileDetail);
 router.get('/profile/picture', verifyToken, UserController.getProfilePicture);
 
-export default router;
+module.exports = router;

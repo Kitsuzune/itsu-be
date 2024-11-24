@@ -1,6 +1,6 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
-import Favourite from "./FavouriteModel.js";
+const Sequelize = require("sequelize");
+const db = require("../config/ModelConfig.js");
+const Favourite = require("./FavouriteModel.js");
 
 const { DataTypes } = Sequelize;
 
@@ -36,4 +36,4 @@ const Product = db.define("products", {
 Product.hasMany(Favourite, { foreignKey: 'productId', as: 'favourites' });
 Favourite.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 
-export default Product;
+module.exports = Product;

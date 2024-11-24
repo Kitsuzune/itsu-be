@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
 
 const { DataTypes } = Sequelize;
 
@@ -33,4 +33,4 @@ const Feedback = db.define("feedbacks", {
   },
 });
 
-export default Feedback;
+module.exports = Feedback;

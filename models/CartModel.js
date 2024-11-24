@@ -1,7 +1,7 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
-import Product from "./ProductModel.js";
-import User from "./UserModel.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
+const Product = require("./ProductModel.js");
+const User = require("./UserModel.js");
 
 const { DataTypes } = Sequelize;
 
@@ -43,11 +43,10 @@ const Cart = db.define("carts", {
     },
 });
 
-
 Product.hasMany(Cart, { foreignKey: 'productId', as: 'carts' });
 Cart.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 
 User.hasMany(Cart, { foreignKey: 'userId', as: 'carts' });
 Cart.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-export default Cart;
+module.exports = Cart;

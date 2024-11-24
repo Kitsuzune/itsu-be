@@ -1,11 +1,11 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import Auth from "../models/AuthModel.js";
-import User from "../models/UserModel.js";
-import Admin from "../models/AdminModel.js";
-import { Op } from "sequelize";
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Auth = require("../models/AuthModel.js");
+const User = require("../models/UserModel.js");
+const Admin = require("../models/AdminModel.js");
+const { Op } = require("sequelize");
 
-export const register = async (req, res) => {
+const register = async (req, res) => {
     try {
         const { username, firstName, lastName, email, address, password } = req.body;
         const salt = await bcrypt.genSalt(10);
@@ -34,7 +34,7 @@ export const register = async (req, res) => {
     }
 };
 
-export const login = async (req, res) => {
+const login = async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({
@@ -76,7 +76,7 @@ export const login = async (req, res) => {
     }
 }
 
-export const changePassword = async (req, res) => {
+const changePassword = async (req, res) => {
     try {
         const { oldPassword, newPassword } = req.body;
         const userId = req.user.userId;
@@ -98,3 +98,9 @@ export const changePassword = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+module.exports = {
+    register,
+    login,
+    changePassword
+};

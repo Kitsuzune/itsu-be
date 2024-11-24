@@ -1,7 +1,7 @@
-import express from 'express';
-import * as ProductController from '../controllers/ProductController.mjs';
-import multer from 'multer';
-import verifyToken from '../middleware/authMiddleware.js';
+const express = require('express');
+const ProductController = require('../controllers/ProductController.js');
+const multer = require('multer');
+const verifyToken = require('../middleware/authMiddleware.js');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -22,4 +22,4 @@ router.post('/product/add', upload.single('productImage'), verifyToken, ProductC
 router.patch('/product/update/:id', upload.single('productImage'), verifyToken, ProductController.updateProduct);
 router.delete('/product/delete/:id', verifyToken, ProductController.deleteProduct);
 
-export default router;
+module.exports = router;

@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
 
 const { DataTypes } = Sequelize;
 
@@ -34,4 +34,4 @@ const Coupon = db.define("coupons", {
     },
 });
 
-export default Coupon;
+module.exports = Coupon;

@@ -1,8 +1,8 @@
-import Product from "../models/ProductModel.js";
-import User from "../models/UserModel.js";
-import Banner from "../models/BannerModel.js";
+const Product = require("../models/ProductModel.js");
+const User = require("../models/UserModel.js");
+const Banner = require("../models/BannerModel.js");
 
-export const getBanners = async (req, res) => {
+const getBanners = async (req, res) => {
     try {
         const banners = await Banner.findAll();
 
@@ -28,7 +28,7 @@ export const getBanners = async (req, res) => {
     }
 }
 
-export const getBannerDetail = async (req, res) => {
+const getBannerDetail = async (req, res) => {
     const { bannerId } = req.params;
 
     try {
@@ -63,7 +63,7 @@ export const getBannerDetail = async (req, res) => {
     }
 }
 
-export const editBanner = async (req, res) => {
+const editBanner = async (req, res) => {
     const { bannerId } = req.params;
     const bannerImage = req.files ? req.files : req.file.filename;
     console.log('image', bannerImage);
@@ -96,7 +96,7 @@ export const editBanner = async (req, res) => {
     }
 };
 
-export const getThisMonthBanner = async (req, res) => {
+const getThisMonthBanner = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -116,7 +116,7 @@ export const getThisMonthBanner = async (req, res) => {
     }
 }
 
-export const getStoreBanner = async (req, res) => {
+const getStoreBanner = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -136,7 +136,7 @@ export const getStoreBanner = async (req, res) => {
     }
 }
 
-export const getHomeCarousel = async (req, res) => {
+const getHomeCarousel = async (req, res) => {
     try {
         const banners = await Banner.findAll({
             where: {
@@ -163,7 +163,7 @@ export const getHomeCarousel = async (req, res) => {
 }
 
 
-export const getExploreProduct = async (req, res) => {
+const getExploreProduct = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -183,7 +183,7 @@ export const getExploreProduct = async (req, res) => {
     }
 }
 
-export const getNewArrival01 = async (req, res) => {
+const getNewArrival01 = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -203,7 +203,7 @@ export const getNewArrival01 = async (req, res) => {
     }
 }
 
-export const getNewArrival02 = async (req, res) => {
+const getNewArrival02 = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -223,7 +223,7 @@ export const getNewArrival02 = async (req, res) => {
     }
 }
 
-export const getNewArrival03 = async (req, res) => {
+const getNewArrival03 = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -243,7 +243,7 @@ export const getNewArrival03 = async (req, res) => {
     }
 }
 
-export const getNewArrival04 = async (req, res) => {
+const getNewArrival04 = async (req, res) => {
     try {
         const banner = await Banner.findOne({
             where: {
@@ -261,5 +261,19 @@ export const getNewArrival04 = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+}
+
+module.exports = {
+    getBanners,
+    getBannerDetail,
+    editBanner,
+    getThisMonthBanner,
+    getStoreBanner,
+    getHomeCarousel,
+    getExploreProduct,
+    getNewArrival01,
+    getNewArrival02,
+    getNewArrival03,
+    getNewArrival04
 }
 

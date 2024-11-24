@@ -1,7 +1,7 @@
-import express from 'express';
-import multer from 'multer';
-import verifyToken from '../middleware/authMiddleware.js';
-import * as FavoriteController from '../controllers/FavouriteController.js';
+const express = require('express');
+const multer = require('multer');
+const verifyToken = require('../middleware/authMiddleware.js');
+const FavoriteController = require('../controllers/FavouriteController.js');
 
 const upload = multer();
 
@@ -11,4 +11,4 @@ router.post('/favourite/add', verifyToken, upload.none(), FavoriteController.add
 router.get('/favourite', verifyToken, upload.none(), FavoriteController.getFavourites);
 router.delete('/favourite/delete/:favouriteId', verifyToken, upload.none(), FavoriteController.removeFavourite);
 
-export default router;
+module.exports = router;

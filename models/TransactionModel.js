@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
 
 const { DataTypes } = Sequelize;
 
@@ -50,5 +50,4 @@ const TransactionModel = db.define("transactions", {
     },
 });
 
-
-export default TransactionModel;
+module.exports = TransactionModel;

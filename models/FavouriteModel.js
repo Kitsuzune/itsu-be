@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
 
 const { DataTypes } = Sequelize;
 
@@ -37,4 +37,4 @@ const Favourite = db.define("favourites", {
   },
 });
 
-export default Favourite;
+module.exports = Favourite;

@@ -1,7 +1,7 @@
-import express from 'express';
-import multer from 'multer';
-import verifyToken from '../middleware/authMiddleware.js';
-import * as BannerRoute from '../controllers/BannerController.js';
+const express = require('express');
+const multer = require('multer');
+const verifyToken = require('../middleware/authMiddleware.js');
+const BannerRoute = require('../controllers/BannerController.js');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -21,7 +21,7 @@ const conditionalUpload = (req, res, next) => {
     } else {
       upload.single('bannerImage')(req, res, next);
     }
-  };
+};
 
 router.get('/banner', BannerRoute.getBanners);
 router.get('/banner/:bannerId', BannerRoute.getBannerDetail);
@@ -36,4 +36,4 @@ router.get('/banner/v1/get-newArrival2', BannerRoute.getNewArrival02);
 router.get('/banner/v1/get-newArrival3', BannerRoute.getNewArrival03);
 router.get('/banner/v1/get-newArrival4', BannerRoute.getNewArrival04);
 
-export default router;
+module.exports = router;

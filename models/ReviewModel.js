@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
 
 const { DataTypes } = Sequelize;
 
@@ -35,4 +35,4 @@ const Review = db.define("reviews", {
     },
 });
 
-export default Review;
+module.exports = Review;

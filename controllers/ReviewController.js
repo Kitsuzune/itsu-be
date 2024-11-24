@@ -1,10 +1,10 @@
-import Product from '../models/ProductModel.js';
-import User from '../models/UserModel.js';
-import path from 'path';
-import fs from 'fs';
-import Review from '../models/ReviewModel.js';
+const Product = require('../models/ProductModel.js');
+const User = require('../models/UserModel.js');
+const path = require('path');
+const fs = require('fs');
+const Review = require('../models/ReviewModel.js');
 
-export const addReview = async (req, res) => {
+const addReview = async (req, res) => {
     const { productId, review, rating } = req.body;
     const userId = req.user.userId;
 
@@ -44,7 +44,7 @@ export const addReview = async (req, res) => {
     }
 }
 
-export const getReviewsById = async (req, res) => {
+const getReviewsById = async (req, res) => {
     const productId = req.params.productId;
 
     try {
@@ -78,7 +78,6 @@ export const getReviewsById = async (req, res) => {
                         ...review.toJSON(),
                         user: {
                             username: review.user.username,
-                            // profilePicture: review.user.profilePicture,
                             profilePicture: review.user.profilePicture ? `${process.env.BASE_URL}/uploads/profilePicture/${review.user.profilePicture}` : null,
                         },
                     };
@@ -89,3 +88,8 @@ export const getReviewsById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+module.exports = {
+    addReview,
+    getReviewsById
+};

@@ -1,8 +1,8 @@
-import User from "../models/UserModel.js";
-import path from 'path';
-import fs from 'fs';
+const User = require("../models/UserModel.js");
+const path = require('path');
+const fs = require('fs');
 
-export const getUsers = async (req, res) => {
+const getUsers = async (req, res) => {
     try {
         const users = await User.findAll();
         res.status(200).json(users);
@@ -11,7 +11,7 @@ export const getUsers = async (req, res) => {
     }
 };
 
-export const createUser = async (req, res) => {
+const createUser = async (req, res) => {
     try {
         const { username, firstName, lastName, email, address } = req.body;
         console.log(req.body);
@@ -22,7 +22,7 @@ export const createUser = async (req, res) => {
     }
 };
 
-export const editProfileDetail = async (req, res) => {
+const editProfileDetail = async (req, res) => {
     try {
         const { firstName, lastName, email, address } = req.body;
         const userId = req.user.userId;
@@ -45,7 +45,7 @@ export const editProfileDetail = async (req, res) => {
     }
 };
 
-export const editProfilePicture = async (req, res) => {
+const editProfilePicture = async (req, res) => {
     try {
         const userId = req.user.userId;
 
@@ -82,7 +82,7 @@ export const editProfilePicture = async (req, res) => {
     }
 };
 
-export const getProfileDetail = async (req, res) => { 
+const getProfileDetail = async (req, res) => { 
     try {
         const userId = req.user.userId;
         const user = await User.findByPk(userId);
@@ -95,7 +95,7 @@ export const getProfileDetail = async (req, res) => {
     }
 };
 
-export const getProfilePicture = async (req, res) => {
+const getProfilePicture = async (req, res) => {
     try {
         const userId = req.user.userId;
         const user = await User.findByPk(userId);
@@ -104,7 +104,6 @@ export const getProfilePicture = async (req, res) => {
         }
 
         if (user.profilePicture) {
-            // const picturePath = path.join(path.resolve(), `uploads/profilePicture/${user.profilePicture}`);
             const picturePath = `${process.env.BASE_URL}/uploads/profilePicture/${user.profilePicture}`;
             res.status(200).json({ profilePicture: picturePath });
         } else {
@@ -113,4 +112,13 @@ export const getProfilePicture = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+module.exports = {
+    getUsers,
+    createUser,
+    editProfileDetail,
+    editProfilePicture,
+    getProfileDetail,
+    getProfilePicture
 };

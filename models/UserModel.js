@@ -1,7 +1,7 @@
-import { Sequelize } from "sequelize";
-import db from "../config/ModelConfig.js";
-import TransactionModel from "./TransactionModel.js";
-import Review from "./ReviewModel.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/ModelConfig.js");
+const TransactionModel = require("./TransactionModel.js");
+const Review = require("./ReviewModel.js");
 
 const { DataTypes } = Sequelize;
 
@@ -43,4 +43,4 @@ TransactionModel.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 User.hasMany(Review, { foreignKey: 'userId', as: 'reviews' });
 Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-export default User;
+module.exports = User;

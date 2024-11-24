@@ -1,8 +1,8 @@
-import Product from "../models/ProductModel.js";
-import User from "../models/UserModel.js";
-import Favourite from "../models/FavouriteModel.js";
+const Product = require("../models/ProductModel.js");
+const User = require("../models/UserModel.js");
+const Favourite = require("../models/FavouriteModel.js");
 
-export const addFavourite = async (req, res) => {
+const addFavourite = async (req, res) => {
     const { productId } = req.body;
     const userId = req.user.userId;
 
@@ -31,7 +31,7 @@ export const addFavourite = async (req, res) => {
     }
 }
 
-export const getFavourites = async (req, res) => {
+const getFavourites = async (req, res) => {
     const userId = req.user.userId;
 
     try {
@@ -43,17 +43,6 @@ export const getFavourites = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
-
-
-        // const favourites = await Favourite.findAll({
-        //     where: { userId },
-        //     include: [
-        //         {
-        //             model: Product,
-        //             as: 'product',
-        //         },
-        //     ],
-        // });
 
         const { count, rows: favourites } = await Favourite.findAndCountAll({
             where: { userId },
@@ -69,7 +58,6 @@ export const getFavourites = async (req, res) => {
 
         res.status(200).json({
             message: "Favourites retrieved successfully",
-            // data: favourites,
             wishlist: favourites.map(favourite => {
                 return {
                     ...favourite.toJSON(),
@@ -87,7 +75,7 @@ export const getFavourites = async (req, res) => {
     }
 }
 
-export const removeFavourite = async (req, res) => {
+const removeFavourite = async (req, res) => {
     const { favouriteId } = req.params;
     const userId = req.user.userId;
 
@@ -108,4 +96,10 @@ export const removeFavourite = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+}
+
+module.exports = {
+    addFavourite,
+    getFavourites,
+    removeFavourite
 }
