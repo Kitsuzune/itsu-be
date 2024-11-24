@@ -1,8 +1,33 @@
-const path = require('path');
+import { Sequelize } from 'sequelize';
 
-module.exports = {
-  'config': path.resolve('config', 'database.cjs'),
-  'models-path': path.resolve('models'),
-  'migrations-path': path.resolve('migrations'),
-  'seeders-path': path.resolve('seeders')
+export default function(sequelize, DataTypes) {
+  return sequelize.define('sequelizemeta', {
+    name: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      primaryKey: true
+    }
+  }, {
+    sequelize,
+    tableName: 'sequelizemeta',
+    timestamps: false,
+    indexes: [
+      {
+        name: "PRIMARY",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "name" },
+        ]
+      },
+      {
+        name: "name",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "name" },
+        ]
+      },
+    ]
+  });
 };
