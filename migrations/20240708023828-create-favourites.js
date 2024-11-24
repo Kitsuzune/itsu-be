@@ -1,9 +1,9 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('carts', {
+    await queryInterface.createTable('favourites', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -25,11 +25,6 @@ module.exports = {
           key: 'id',
         },
       },
-      quantity: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -44,6 +39,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('carts');
+    await queryInterface.dropTable('favourites');
   }
 };

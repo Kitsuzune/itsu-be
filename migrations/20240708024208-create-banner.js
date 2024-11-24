@@ -1,9 +1,9 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('products', {
+    await queryInterface.createTable('banners', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -13,17 +13,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      price: {
-        type: Sequelize.DECIMAL,
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
       image: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       status: {
         type: Sequelize.BOOLEAN,
@@ -44,6 +36,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('products');
+    await queryInterface.dropTable('banners');
   }
 };

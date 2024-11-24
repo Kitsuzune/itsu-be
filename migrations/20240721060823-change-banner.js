@@ -1,7 +1,8 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+
+export default {
   async up (queryInterface, Sequelize) {
     return queryInterface.changeColumn('banners', 'image', {
       type: Sequelize.STRING(1000),

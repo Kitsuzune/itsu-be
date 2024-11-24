@@ -16,7 +16,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-const __dirname = path.resolve();
+// const __dirname = path.resolve();
 
 app.use(cors());
 app.use(express.json());

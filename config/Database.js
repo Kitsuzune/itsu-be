@@ -1,5 +1,5 @@
-const { Sequelize } = require('sequelize');
-const dotenv = require('dotenv');
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const config = {
@@ -33,4 +33,4 @@ const config = {
     },
 };
 
-module.exports = config;
+export default config;

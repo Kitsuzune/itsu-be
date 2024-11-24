@@ -1,36 +1,34 @@
 'use strict';
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('users', {
+
+/** @type {import('sequelize-cli').Migration} */
+export default {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.createTable('products', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4,
       },
-      username: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      firstName: {
-        type: Sequelize.STRING,
+      price: {
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
-      lastName: {
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      image: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true,
-      },
-      address: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      profilePicture: {
-        type: Sequelize.STRING,
-        allowNull: true,
+      status: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
       createdAt: {
         allowNull: false,
@@ -41,10 +39,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
-      }
+      },
     });
   },
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('users');
+
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('products');
   }
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
   async up (queryInterface, Sequelize) {
     // drop column productId from transactions table dan tambahkan product list
     await queryInterface.removeColumn('transactions', 'productId');

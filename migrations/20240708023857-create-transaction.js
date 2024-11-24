@@ -1,9 +1,9 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('favourites', {
+    await queryInterface.createTable('transactions', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -17,13 +17,26 @@ module.exports = {
           key: 'id',
         },
       },
-      productId: {
-        type: Sequelize.UUID,
+      prodductList: {
+        type: Sequelize.JSON,
         allowNull: false,
-        references: {
-          model: 'products',
-          key: 'id',
-        },
+      },
+      deduction: {
+        type: Sequelize.DECIMAL,
+        allowNull: false,
+      },
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      total: {
+        type: Sequelize.DECIMAL,
+        allowNull: false,
+      },
+      status: {
+        type: Sequelize.ENUM('pending', 'success', 'failed'),
+        allowNull: false,
+        defaultValue: 'pending',
       },
       createdAt: {
         allowNull: false,
@@ -39,6 +52,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('favourites');
+    await queryInterface.dropTable('transactions');
   }
 };
