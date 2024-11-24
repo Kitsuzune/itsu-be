@@ -1,5 +1,5 @@
 import express from 'express';
-import * as ProductController from '../controllers/ProductController.js';
+import * as ProductController from '../controllers/ProductController.mjs';
 import multer from 'multer';
 import verifyToken from '../middleware/authMiddleware.js';
 
