@@ -209,7 +209,7 @@ export const updateProduct = async (req, res) => {
                 productImage = product.image;
             }
         }
-        
+
         console.log('test');
 
         product.name = name;
